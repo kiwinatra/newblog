@@ -13,10 +13,8 @@ export const MDXComponents = {
   a: CustomLink,
   pre: Pre,
   BlogNewsletterForm: BlogNewsletterForm,
-  wrapper: ({ components, layout, ...rest }) => {
-    const Layout = require(`../layouts/${layout}`).default
-    return <Layout {...rest} />
-  },
+  // Простой wrapper без динамических импортов
+  wrapper: ({ children }) => <div className="prose max-w-none">{children}</div>
 }
 
 export const MDXLayoutRenderer = ({ layout, mdxSource, ...rest }) => {
