@@ -3,73 +3,96 @@ import { PageSEO } from '@/components/SEO'
 import { dayjs } from '@/components/DayJS'
 import { useEffect, useState } from 'react'
 import siteMetadata from '@/data/siteMetadata'
-import { getCurrentlyReading } from '@/lib/goodreads'
-import fetcher from 'lib/fetcher'
-import useSWR from 'swr'
-import { FaCloudShowersHeavy } from 'react-icons/fa'
 import {
-  BsCloudDrizzleFill,
   BsCloudsFill,
-  BsCloudLightningFill,
-  BsCloudSnowFill,
-  BsCloudFogFill,
   BsMoonFill,
   BsClock,
   BsSunFill,
   BsFillCloudSunFill,
   BsFillCloudMoonFill,
   BsFillCloudFill,
+  BsCloudDrizzleFill,
+  BsCloudLightningFill,
+  BsCloudSnowFill,
+  BsCloudFogFill,
 } from 'react-icons/bs'
+import { FaCloudShowersHeavy } from 'react-icons/fa'
 
-export const getServerSideProps = async () => {
-  const response = await fetch(
-    'https://api.openweathermap.org/data/2.5/weather?lat=23.014770&lon=72.526330&appid=1b3c10c18e894eaf1fd63eedde53fa54&units=metric'
-  )
-  const data = await response.json()
+export default function Now() {
+  // Статические данные
+  const staticCurrentlyReading = [{
+    title: "Atomic Habits",
+    author: "James Clear", 
+    url: "https://www.goodreads.com/book/show/40121378-atomic-habits"
+  }]
 
-  const currentlyReading = await getCurrentlyReading({ limit: 1 })
-
-  return {
-    props: { currentlyReading, data },
+  const staticMusic = {
+    songUrl: null,
+    title: "Not Playing"
   }
-}
 
-export default function Now(currentlyReading) {
-  const { data } = useSWR('/api/now-playing', fetcher)
-  let currentlyReadingData = currentlyReading['currentlyReading']
-  let weatherData = currentlyReading['data']
-  const { temp: temperature } = weatherData.main
-  const { icon: weatherIcon, description: weatherDescription } = weatherData.weather[0]
-
+  // Состояния
+  const [weatherData, setWeatherData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  
   const icons = {
-    _01d: <BsSunFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _01n: <BsMoonFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _02d: <BsFillCloudSunFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _02n: <BsFillCloudMoonFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _03d: <BsFillCloudFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _03n: <BsFillCloudFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _04d: <BsCloudsFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _04n: <BsCloudsFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _09d: <BsCloudDrizzleFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _09n: <BsCloudDrizzleFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _10d: <FaCloudShowersHeavy className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _10n: <FaCloudShowersHeavy className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _11d: <BsCloudLightningFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _11n: <BsCloudLightningFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _13d: <BsCloudSnowFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _13n: <BsCloudSnowFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _50d: <BsCloudFogFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
-    _50n: <BsCloudFogFill className="mb-0.5 inline h-3 w-3 hover:animate-spin" />,
+    '01d': <BsSunFill className="inline h-4 w-4 text-yellow-500 animate-pulse" />,
+    '01n': <BsMoonFill className="inline h-4 w-4 text-blue-300 animate-pulse" />,
+    '02d': <BsFillCloudSunFill className="inline h-4 w-4 text-gray-400" />,
+    '02n': <BsFillCloudMoonFill className="inline h-4 w-4 text-gray-400" />,
+    '03d': <BsFillCloudFill className="inline h-4 w-4 text-gray-500" />,
+    '03n': <BsFillCloudFill className="inline h-4 w-4 text-gray-500" />,
+    '04d': <BsCloudsFill className="inline h-4 w-4 text-gray-600" />,
+    '04n': <BsCloudsFill className="inline h-4 w-4 text-gray-600" />,
+    '09d': <BsCloudDrizzleFill className="inline h-4 w-4 text-blue-400" />,
+    '09n': <BsCloudDrizzleFill className="inline h-4 w-4 text-blue-400" />,
+    '10d': <FaCloudShowersHeavy className="inline h-4 w-4 text-blue-500" />,
+    '10n': <FaCloudShowersHeavy className="inline h-4 w-4 text-blue-500" />,
+    '11d': <BsCloudLightningFill className="inline h-4 w-4 text-yellow-400 animate-pulse" />,
+    '11n': <BsCloudLightningFill className="inline h-4 w-4 text-yellow-400 animate-pulse" />,
+    '13d': <BsCloudSnowFill className="inline h-4 w-4 text-blue-200" />,
+    '13n': <BsCloudSnowFill className="inline h-4 w-4 text-blue-200" />,
+    '50d': <BsCloudFogFill className="inline h-4 w-4 text-gray-300" />,
+    '50n': <BsCloudFogFill className="inline h-4 w-4 text-gray-300" />,
   }
 
-  var year = new Date().getFullYear()
-  var month = new Date().getMonth()
-  var date = new Date().getDate()
-  var hour = new Date().getHours()
-  var minute = new Date().getMinutes()
-  var second = new Date().getSeconds()
-  const now = () => dayjs().tz()
-  const format = 'hhA'
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        setLoading(true)
+        // Координаты Гуанчжоу, Китай
+        const response = await fetch(
+          'https://api.openweathermap.org/data/2.5/weather?lat=23.1291&lon=113.2644&appid=1b3c10c18e894eaf1fd63eedde53fa54&units=metric&lang=en'
+        )
+        const data = await response.json()
+        setWeatherData(data)
+      } catch (error) {
+        console.log('Weather API failed, using fallback')
+        // Фолбэк данные для Гуанчжоу
+        setWeatherData({
+          main: { 
+            temp: 25,
+            feels_like: 28,
+            humidity: 75
+          },
+          weather: [{ 
+            icon: "02d", 
+            description: "scattered clouds",
+            main: "Clouds"
+          }],
+          wind: { speed: 2.1 },
+          name: "Guangzhou"
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchWeather()
+  }, [])
+
+  // Дата и время - устанавливаем часовой пояс Китая
+  const now = () => dayjs().tz('Asia/Shanghai')
   const [TodayDate, setDate] = useState(now())
 
   useEffect(() => {
@@ -77,51 +100,37 @@ export default function Now(currentlyReading) {
     return () => clearInterval(timer)
   }, [])
 
-  var ParthBirthDate = '2012-12-12'
-  var birthDate = new Date(ParthBirthDate)
+  // Расчет возраста
+  const calculateAge = () => {
+    const birthDate = new Date('2012-12-12')
+    const now = new Date()
+    
+    let years = now.getFullYear() - birthDate.getFullYear()
+    let months = now.getMonth() - birthDate.getMonth()
+    let days = now.getDate() - birthDate.getDate()
 
-  var ParthAge = year - birthDate.getFullYear()
+    if (days < 0) {
+      months--
+      days += new Date(now.getFullYear(), now.getMonth(), 0).getDate()
+    }
+    
+    if (months < 0) {
+      years--
+      months += 12
+    }
 
-  var ParthMonth = 0
-  if (month >= birthDate.getMonth()) ParthMonth = month - birthDate.getMonth()
-  else {
-    ParthAge--
-    ParthMonth = 12 + month - birthDate.getMonth()
-  }
-
-  var ParthDay = 0
-  if (date >= birthDate.getDate()) ParthDay = date - birthDate.getDate()
-  else {
-    ParthMonth--
-    ParthDay = 31 + date - birthDate.getDate()
-    if (ParthMonth < 0) {
-      ParthMonth = 11
-      ParthAge--
+    if (years > 0 && months > 0 && days > 0) {
+      return `${years} years, ${months} months, and ${days} days old`
+    } else if (years > 0 && months === 0 && days === 0) {
+      return `${years} years old. Happy Birthday!!`
+    } else if (years > 0 && months > 0 && days === 0) {
+      return `${years} years and ${months} months old`
+    } else {
+      return `${years} years old`
     }
   }
 
-  var age = {}
-  age = {
-    years: ParthAge,
-    months: ParthMonth,
-    days: ParthDay,
-  }
-
-  var ageString = ''
-  if (age.years > 0 && age.months > 0 && age.days > 0)
-    ageString = age.years + ' years, ' + age.months + ' months, and ' + age.days + ' days old'
-  else if (age.years == 0 && age.months == 0 && age.days > 0)
-    ageString = 'Only ' + age.days + ' days old'
-  else if (age.years > 0 && age.months == 0 && age.days == 0)
-    ageString = age.years + ' years old. Happy Birthday!!'
-  else if (age.years > 0 && age.months > 0 && age.days == 0)
-    ageString = age.years + ' years and ' + age.months + ' months old'
-  else if (age.years == 0 && age.months > 0 && age.days > 0)
-    ageString = age.months + ' months and ' + age.days + ' days old'
-  else if (age.years > 0 && age.months == 0 && age.days > 0)
-    ageString = age.years + ' years, and' + age.days + ' days old'
-  else if (age.years == 0 && age.months > 0 && age.days == 0) ageString = age.months + ' months old'
-  else ageString = "Welcome to Earth! <br> It's first day on Earth!"
+  const ageString = calculateAge()
 
   return (
     <>
@@ -130,164 +139,232 @@ export default function Now(currentlyReading) {
         description="What I'm working on now"
         url={siteMetadata.url}
       />
-      <div>
-        <div className="my-2">
-          <h3>Where am I and what am I doing?</h3>
-          <div className=" mt-4 mb-6 text-xs text-neutral-700 dark:text-neutral-400">
-            This page was automatically updated @ {date}-{month}-{year} {hour}:{minute}:{second}
-          </div>
+      
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="my-8 text-center">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            What I'm Doing Now
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Last updated: {TodayDate.format('MMMM D, YYYY • HH:mm:ss')} (China Time)
+          </p>
         </div>
-        {/* Misc */}
-        <div>
-          <div className="flex justify-between gap-5">
-            <div className="mt-2 mb-10 w-1/2 rounded-md border border-gray-600 p-1 text-sm dark:border-gray-200">
-              <span className="ml-2 font-semibold">Location:</span> <span>Ahmedabad, India</span>
-              <br />
-              <span className="ml-2 font-semibold">Weather:</span>{' '}
-              <span>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* Location & Weather Card */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-blue-900 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+              Location & Weather
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">City:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">Guangzhou, China 🇨🇳</span>
+              </div>
+              
+              {loading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+              ) : weatherData && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Weather:</span>
+                    <div className="flex items-center space-x-2">
+                      {icons[weatherData.weather[0].icon]}
+                      <span className="font-semibold capitalize text-gray-900 dark:text-white">
+                        {weatherData.weather[0].description}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">Temperature:</span>
+                    <span className="text-xl font-bold text-gray-900 dark:text-white">
+                      {Math.round(weatherData.main.temp)}°C
+                    </span>
+                  </div>
+                  
+                  {weatherData.main.feels_like && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Feels like:</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {Math.round(weatherData.main.feels_like)}°C
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Reading & Age Card */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-800 dark:to-green-900 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              Currently Reading
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Book:</span>
                 <a
-                  href="https://weather.com/en-GB/weather/today/l/f42d9f8baa19b4d8d5e034449faa703839993366f64551a56a2b530297075dc2"
+                  href={staticCurrentlyReading[0].url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline-offset-1 hover:underline"
+                  className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  {icons[`_${weatherIcon}`]} Currently <b>{parseInt(temperature)}°C</b>
-                  {' with '}
-                  <span>{weatherDescription}</span>
+                  {staticCurrentlyReading[0].title}
                 </a>
-              </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Author:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {staticCurrentlyReading[0].author}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Age:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {ageString}
+                </span>
+              </div>
             </div>
+          </div>
 
-            <div className="mt-2 mb-10 w-1/2 rounded-md border border-gray-600 p-1 text-sm dark:border-gray-200">
-              <span className="ml-2 font-semibold">Reading:</span>{' '}
-              <a
-                href={currentlyReadingData[0].url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline-offset-1 hover:underline"
+          {/* Time & Date Card */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-gray-800 dark:to-purple-900 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+              Current Time
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Date:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {TodayDate.format('DD MMMM YYYY')}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Time:</span>
+                <div className="flex items-center space-x-2">
+                  <BsClock className="h-4 w-4 text-purple-500 animate-pulse" />
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    {TodayDate.format('HH:mm:ss')} CST
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Music & Drink Card */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-gray-800 dark:to-orange-900 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Right Now
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Listening:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {staticMusic.title}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600 dark:text-gray-400">Drinking:</span>
+                <span className="font-semibold text-gray-900 dark:text-white">Chinese Tea 🍵</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Work Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <span className="w-3 h-3 bg-blue-500 rounded-full mr-3"></span>
+            Professional Life
+          </h2>
+          
+          <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <p className="leading-relaxed">
+              I work as a <span className="font-semibold text-blue-600 dark:text-blue-400">Data Engineer</span> at{' '}
+              <Link
+                href="https://huggywug.co/"
+                className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
-                <span>{currentlyReadingData[0].title}</span> by{' '}
-                <span>{currentlyReadingData[0].author}</span>
-              </a>
-              <br />
-              <span className="ml-2 font-semibold">Age:</span> <span>{ageString}</span>
-            </div>
-          </div>
-
-          <div className="-my-6 flex justify-between gap-5">
-            <div className="mt-2 mb-10 w-1/2 rounded-md border border-gray-600 p-1 text-sm dark:border-gray-200">
-              <span className="ml-2 font-semibold">Date:</span>{' '}
-              <span>{TodayDate.format('DD/MM/YYYY')}</span>
-              <br />
-              <span className="ml-2 font-semibold">Time:</span>{' '}
-              <span>
-                <BsClock className="mb-0.5 inline h-3 w-3 hover:animate-spin" />{' '}
-                {TodayDate.format('h:mm:ss A')}
-              </span>
-            </div>
-
-            <div className="mt-2 mb-10 w-1/2 rounded-md border border-gray-600 p-1 text-sm dark:border-gray-200">
-              <span className="ml-2 font-semibold">Listening:</span>{' '}
-              <span>
-                {data?.songUrl ? (
-                  <a
-                    href={data.songUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline-offset-1 hover:underline"
-                  >
-                    <span>{data.title}</span>
-                  </a>
-                ) : (
-                  <span>Not Playing</span>
-                )}
-              </span>
-              <br />
-              <span className="ml-2 font-semibold">Drinking:</span> <span>Coffee</span>
-            </div>
+                MOB Games
+              </Link>
+              , where I focus on building scalable data pipelines and automating processes using Scala and Google Cloud Platform.
+            </p>
+            
+            <p className="leading-relaxed">
+              Currently, I'm transitioning from <span className="font-semibold">Data Engineering</span> to{' '}
+              <span className="font-semibold text-green-600 dark:text-green-400">Data Science</span> and actively seeking new opportunities in this field.
+            </p>
+            
+            <p className="leading-relaxed">
+              While I'm currently based in <span className="font-semibold">Guangzhou, China</span>, I'm open to remote opportunities or relocating for the right role that aligns with my career goals.
+            </p>
+            
+            <p className="leading-relaxed">
+              I'm currently exploring{' '}
+              <Link
+                href="https://www.youtube.com/watch?v=_u-PaJCpwiU&list=PLu0W_9lII9ai6fAMHp-acBmJONT7Y4BSG"
+                className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                advanced Machine Learning concepts
+              </Link>{' '}
+              and their applications in real-world business problems.
+            </p>
           </div>
         </div>
-        <div className="justify-center text-center text-2xl font-medium text-gray-200 dark:text-gray-600">
-          &#126;&#126;&#126;
-        </div>
-        {/* Work */}
-        <div className="pb-4">
-          <p>
-            I work as a Data Engineer at{' '}
-            <Link
-              href={'https://www.accenture.com/'}
-              className="special-underline no-underline dark:text-gray-100 hover:dark:text-gray-100"
-            >
-              Accenture
-            </Link>
-            .
-          </p>
-          <br />
-          <p>
-            I work on building pipelines and automating the entire process using Scala and Gcloud.
-          </p>
-          <br />
-          <p>
-            I have been trying to shift my field from Data Engineering to Data Science. I have been
-            constantly applying for the same as well.
-          </p>
-          <br />
-          <p>
-            My location preference is Bangalore but I am open to shift to another place for a better
-            opportunity.
-          </p>
-          <br />
-          <p>
-            I'm always trying to learn more, and at the moment I'm trying to follow this{' '}
-            <Link
-              href={
-                'https://www.youtube.com/watch?v=_u-PaJCpwiU&list=PLu0W_9lII9ai6fAMHp-acBmJONT7Y4BSG'
-              }
-              className="special-underline no-underline dark:text-gray-100 hover:dark:text-gray-100"
-            >
-              Machine Learning tutorial
-            </Link>
-            .
-          </p>
-        </div>
-        <div className="justify-center text-center text-2xl font-medium text-gray-200 dark:text-gray-600">
-          &#126;&#126;&#126;
+
+        {/* Personal Life Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <span className="w-3 h-3 bg-green-500 rounded-full mr-3"></span>
+            Personal Journey
+          </h2>
+          
+          <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <p className="leading-relaxed">
+              Living in Guangzhou has been an incredible experience, immersing myself in the vibrant tech scene and rich culture of Southern China.
+            </p>
+            
+            <p className="leading-relaxed">
+              I'm continuously developing this website as a platform to share knowledge and experiences. I strongly believe in the power of{' '}
+              <Link
+                href="https://www.swyx.io/learn-in-public"
+                className="font-semibold text-gray-900 dark:text-white hover:text-green-600 dark:hover:text-green-400 transition-colors"
+              >
+                learning in public
+              </Link>{' '}
+              and encourage everyone to start their own blogging journey.
+            </p>
+            
+            <p className="leading-relaxed">
+              Currently, I'm learning Mandarin and exploring the intersection of Eastern and Western tech philosophies while working on my next big project.
+            </p>
+          </div>
         </div>
 
-        {/* Personal life */}
-        <div className="pt-6">
-          <p>
-            I've been slowly building this website, trying to share interesting things with anyone
-            who wants to read it.{' '}
-            <Link
-              href={'https://www.swyx.io/learn-in-public'}
-              className="special-underline no-underline dark:text-gray-100 hover:dark:text-gray-100"
-            >
-              This
-            </Link>{' '}
-            article is a great reason to start your blog.
-          </p>
-          <br />
-          <p>
-            I am also going to start applying for Masters in Data Science in August 2022 for intake
-            of Fall 2023. I hope to get a good university near the West Coast. I'll update this page
-            after I get my admits.
-          </p>
-          <br />
-          <p>
-            I recently started to draft a post about my new Obsidian worklfow, it will be a good
-            one!
-          </p>
-        </div>
-        <div className="mt-3 text-sm">
-          For more examples of folks with /now pages, check out{' '}
-          <Link
-            href={'https://nownownow.com/'}
-            className="special-underline no-underline dark:text-gray-100 hover:dark:text-gray-100"
-          >
-            nownownow.com
-          </Link>
-          .
+        {/* Footer Divider */}
+        <div className="text-center my-12">
+          <div className="inline-flex items-center space-x-4 text-gray-400">
+            <div className="w-12 h-px bg-gray-300"></div>
+            <span className="text-sm">Live • Updated in real-time from China</span>
+            <div className="w-12 h-px bg-gray-300"></div>
+          </div>
         </div>
       </div>
     </>

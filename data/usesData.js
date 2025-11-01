@@ -1,3 +1,5 @@
+import { description } from "./siteMetadata"
+
 const usesData = [
   {
     title: 'Macbook Pro 13"',
@@ -16,8 +18,13 @@ const usesData = [
   },
   {
     title: 'VSCode',
-    description: `Nothing shocking here. Click here to find my plugins & config`,
-    href: 'https://gist.github.com/pycoder2000/36812bb44f24e96ce09359cefd9e7198',
+    description: `Nothing shocking here.`,
+    href: 'https://vscode.dev',
+  },
+  {
+    title: 'IDEA (JetBrains)',
+    description: `Who didnt wanted to create apps?`,
+    href: 'https://jetbrains.com/idea'
   },
   {
     title: 'warp',

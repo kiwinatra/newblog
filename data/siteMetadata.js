@@ -5,8 +5,8 @@ const siteMetadata = {
   description: 'My personal blog where I share my musings',
   snippets: 'Reuseable code snippets collected by kiww',
   language: 'en-us',
-  theme: 'system', // system, dark or light
-  siteUrl: 'https://kiwiblog.xo.je',
+  theme: 'dark', // system, dark or light
+  siteUrl: 'https://kiwi.xo.je',
   siteRepo: 'https://github.com/kiwinatra/newblog',
   siteLogo: '/static/images/logo.png',
   image: 'https://cdn.pfps.gg/pfps/7165-anime-cool.png',

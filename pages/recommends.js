@@ -1,22 +1,12 @@
 import siteMetadata from '@/data/siteMetadata'
 import movieData from '@/data/movieData'
+import { currentlyReading, bookReviews } from '@/data/bookData'
 import RecommendCard from '@/components/RecommendCard'
 import BookRecommendCard from '@/components/BookRecommendCard'
 import { PageSEO } from '@/components/SEO'
-import { getCurrentlyReading, getReviews } from '@/lib/goodreads'
 import NowReading from '@/components/NowReading'
 
-export async function getStaticProps() {
-  const reviews = await getReviews({ limit: 10 })
-  const currentlyReading = await getCurrentlyReading({ limit: 2 })
-
-  return { props: { reviews, currentlyReading } }
-}
-
-export default function Recommends(reviews) {
-  let reviewsData = reviews['reviews']
-  let reviewsData1 = reviews['currentlyReading']
-
+export default function Recommends() {
   return (
     <>
       <PageSEO
@@ -32,6 +22,8 @@ export default function Recommends(reviews) {
             A list of recommended movies, books and more
           </p>
         </div>
+
+        {/* Books Section */}
         <div className="space-y-2 pt-3 md:space-y-5">
           <h2 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-4xl md:leading-14">
             <span role="img" className="mr-4" aria-label="wave">
@@ -40,52 +32,61 @@ export default function Recommends(reviews) {
             Books
           </h2>
           <p className="text-md leading-7 text-gray-500 dark:text-gray-400">
-            Take a look into my Goodreads library
+            Take a look at my reading list
           </p>
         </div>
+
         <div className="container py-6">
+          {/* Currently Reading */}
           <div className="-m-2">
-            {reviewsData1.map((r) => (
+            {currentlyReading.map((book) => (
               <NowReading
-                key={r.url}
-                title={r.title}
-                description={r.author}
-                href={r.url}
-                rating={r.rating}
+                key={book.url}
+                title={book.title}
+                description={book.author}
+                href={book.url}
+                rating={book.rating}
               />
             ))}
           </div>
+
+          {/* Book Reviews */}
           <div className="-m-4 flex flex-wrap">
-            {reviewsData.map((r) => (
+            {bookReviews.map((book) => (
               <BookRecommendCard
-                key={r.url}
-                title={r.title}
-                description={r.author}
-                href={r.url}
-                rating={r.rating}
+                key={book.url}
+                title={book.title}
+                description={book.author}
+                href={book.url}
+                rating={book.rating}
               />
             ))}
           </div>
         </div>
+
+        {/* Movies Section */}
         <div className="container py-7">
-          <div className="space-y-2 pt-6 pb-8 md:space-y-5 ">
+          <div className="space-y-2 pt-6 pb-8 md:space-y-5">
             <h2 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-4xl md:leading-14">
               <span role="img" className="mr-4" aria-label="wave">
                 🍿
               </span>
               Movies
             </h2>
-            <p className="text-md leading-7 text-gray-500 dark:text-gray-400">Life's a Movie.</p>
+            <p className="text-md leading-7 text-gray-500 dark:text-gray-400">
+              Life's a Movie.
+            </p>
           </div>
+
           <div className="container py-4">
             <div className="-m-4 flex flex-wrap">
-              {movieData.map((d) => (
+              {movieData.map((movie) => (
                 <RecommendCard
-                  key={d.title}
-                  title={d.title}
-                  description={d.description}
-                  tags={d.tags}
-                  href={d.href}
+                  key={movie.title}
+                  title={movie.title}
+                  description={movie.description}
+                  tags={movie.tags}
+                  href={movie.href}
                 />
               ))}
             </div>

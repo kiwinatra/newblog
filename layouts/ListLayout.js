@@ -8,7 +8,7 @@ import ViewCounter from '@/components/ViewCounter'
 export default function ListLayout({ posts, title, initialDisplayPosts = [], pagination }) {
   const [searchValue, setSearchValue] = useState('')
   const filteredBlogPosts = posts.filter((frontMatter) => {
-    const searchContent = frontMatter.title + frontMatter.summary + frontMatter.tags.join(' ')
+    const searchContent = frontMatter.title + frontMatter.summary + (frontMatter.tags ? frontMatter.tags.join(' ') : '')
     return searchContent.toLowerCase().includes(searchValue.toLowerCase())
   })
 
@@ -80,10 +80,10 @@ export default function ListLayout({ posts, title, initialDisplayPosts = [], pag
                           </h2>
                         </div>
                         <div className="flex flex-wrap">
-                          {tags.map((tag) => (
-                            <Tag key={tag} text={tag} />
-                          ))}
-                        </div>
+  {tags && tags.map((tag) => (
+    <Tag key={tag} text={tag} />
+  ))}
+</div>
                         <div className="prose max-w-none pt-5 text-gray-500 dark:text-gray-400">
                           {summary}
                         </div>

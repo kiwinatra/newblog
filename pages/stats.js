@@ -55,7 +55,7 @@ export default function Stats() {
           </p>
           <a
             className="text-md mt-4 rounded-full border px-8 py-2 text-center font-normal text-gray-800 transition-colors hover:border-green-600 hover:bg-green-600 hover:text-white dark:text-gray-200"
-            href="https://twitter.com/messages/compose?recipient_id=1"
+            href="https://syn4c.t.me"
             data-screen-name="@_neverminder"
             target="_blank"
             rel="noreferrer noopener"
