@@ -1,4 +1,6 @@
-# TODO: Add kiwiAuth Custom Provider
+# TODO: Fully Remove Prettier from the Code
 
-- [x] Update `pages/api/auth/[...nextauth].js` to import CredentialsProvider and add kiwiAuth provider with username/password fields that always throws an error in authorize function
-- [ ] Test the authentication flow to confirm error behavior
+- [x] Remove prettier-related packages from package.json devDependencies (prettier, eslint-config-prettier, eslint-plugin-prettier, prettier-plugin-tailwindcss)
+- [x] Remove prettier command from lint-staged in package.json
+- [x] Update .eslintrc.js to remove prettier extends and rules
+- [x] Delete prettier.config.js file
