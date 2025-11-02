@@ -1,8 +1,5 @@
-# Remove Prisma from Project
+# Задачи по оптимизации скорости сборки
 
-- [x] Modify lib/prisma.js to make all guestbook operations throw errors
-- [x] Remove prisma/schema.prisma file
-- [x] Remove Prisma dependencies from package.json
-- [x] Delete the prisma/ folder
-- [x] Run yarn install to update dependencies
-- [ ] Test views API returns fixed count, guestbook operations throw errors
+- [x] Включить SWC минификацию в next.config.js для более быстрых сборок
+- [x] Добавить экспериментальные оптимизации (outputFileTracing, optimizeFonts) для улучшения производительности
+- [ ] Протестировать время компиляции в dev режиме и измерить время загрузки страниц

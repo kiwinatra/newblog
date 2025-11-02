@@ -54,6 +54,14 @@ const securityHeaders = [
 
 module.exports = withBundleAnalyzer({
   reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    outputFileTracing: true,
+    optimizeFonts: true,
+  },
+  env: {
+    NEXTAUTH_URL: 'https://kiwi.xo.je',
+  },
   images: {
     domains: [
       'i.scdn.co', // Spotify Album Art
