@@ -2,7 +2,6 @@ import { Fragment, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { motion } from 'framer-motion'
 import classNames from 'classnames'
-import { useSession, signIn, signOut } from 'next-auth/react'
 import Link from './Link'
 import {
   CodeIcon,
@@ -29,7 +28,6 @@ import useSound from 'use-sound'
 
 export default function DropMenu() {
   const [isOpen, setIsOpen] = useState(false)
-  const { data: session } = useSession()
   const toggleIcon = () => {
     setIsOpen(!isOpen)
   }
@@ -180,32 +178,10 @@ export default function DropMenu() {
                       )}
                     >
                       <div className="flex flex-row">
-                        {session ? (
-                          <>
-                            <div className="mr-2 flex flex-row items-center">
-                              {session.user?.image ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  className="h-6 w-6 cursor-pointer rounded-full"
-                                  src={session.user.image}
-                                  alt="User Profile Icon"
-                                />
-                              ) : (
-                                ''
-                              )}
-                            </div>
-                            <div className="" onClick={() => signOut()}>
-                              Sign Out
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <EnterIcon />
-                            <div className="ml-4" onClick={() => signIn()}>
-                              Sign In
-                            </div>
-                          </>
-                        )}
+                        <EnterIcon />
+                        <div className="ml-4">
+                          Sign In (Disabled)
+                        </div>
                       </div>
                     </a>
                   </Link>

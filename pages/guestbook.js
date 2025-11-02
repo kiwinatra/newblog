@@ -15,7 +15,7 @@ export default function GuestbookPage() {
             Guestbook
           </h1>
           <p className="text-md leading-7 text-gray-500 dark:text-gray-400">
-            Guestbook is currently unavailable (in development).
+            Leave a message in the guestbook.
           </p>
         </div>
         <Guestbook />

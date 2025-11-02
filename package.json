@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "cross-env SOCKET=true node ./scripts/next-remote-watch.js ./data",
-    "dev": "next dev",
+    "dev": "next dev --hostname 0.0.0.0",
+    "tunnel": "npx localtunnel --port 3000",
     "build": "next build && node ./scripts/generate-sitemap",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
@@ -38,15 +39,14 @@
     "image-size": "1.0.0",
     "mdx-bundler": "^8.1.0",
     "motion": "^10.4.0",
-    "next": "12.1.4",
-    "next-auth": "^4.1.0",
+    "next": "^12.1.4",
     "next-themes": "^0.0.14",
     "nprogress": "^0.2.0",
     "postcss": "^8.4.5",
     "preact": "^10.6.2",
     "query-string": "^7.1.1",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-icons": "^4.4.0",
     "react-rough-notation": "^1.0.1",
     "react-scroll-progress-bar": "^1.1.13",
@@ -73,7 +73,7 @@
     "zod": "^3.12.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "12.1.4",
+    "@next/bundle-analyzer": "^12.1.4",
     "@svgr/webpack": "^6.1.2",
     "builtin-modules": "^5.0.0",
     "chokidar": "^4.0.3",
@@ -85,7 +85,9 @@
     "husky": "^6.0.0",
     "inquirer": "^8.1.1",
     "lint-staged": "^11.0.0",
+    "localtunnel": "^2.0.2",
     "next-remote-watch": "^1.0.0",
+    "prettier": "^3.6.2",
     "socket.io": "^4.4.0",
     "socket.io-client": "^4.4.0"
   }
