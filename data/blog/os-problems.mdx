@@ -1,0 +1,365 @@
+---
+title: 'Создание ОС на C++: PotemkOS и 100+ реальных проблем'
+description: 'Полное руководство по разработке операционной системы на современном C++. Аппаратные прерывания, управление памятью, многозадачность и исключения.'
+date: '2024-10-15'
+author: 'Разработчик PotemkOS'
+tags: ['операционные системы', 'C++', 'low-level', 'разработка', 'ядро']
+---
+
+# Создание ОС на C++: PotemkOS и 100+ реальных проблем
+
+Решили создать операционную систему на C++? Отличный выбор! C++ дает мощные абстракции, сохраняя производительность. Но приготовьтесь — путь будет тернистым.
+
+## Почему C++ для ОС — это палка о двух концах?
+
+**Плюсы:**
+- RAII для автоматического управления ресурсами
+- Шаблоны для типобезопасных низкоуровневых операций
+- Пространства имен для организации кода
+- Современные возможности C++20/23
+
+**Минусы:**
+- Исключения в ядре — опасны
+- RTTI может быть избыточным
+- Наследование и виртуальные функции требуют осторожности
+
+```cpp
+// Пример ядра PotemkOS на C++
+namespace PotemkOS {
+    namespace Kernel {
+        class Kernel {
+        public:
+            static void initialize();
+        };
+    }
+}
+
+extern "C" void kernel_main() {
+    PotemkOS::Kernel::initialize();
+}
+```
+
+## Фаза 1: Загрузка и базовое C++ (20+ проблем)
+
+### Проблемы загрузчика и ранней инициализации
+
+1. **Global constructors не вызываются** — забыли `.init_array`
+2. **"Undefined reference to __cxa_atexit"** — нет поддержки C++ runtime
+3. **Статические объекты не инициализируются** — неправильная линковка
+4. **VMT не работает** — неправильно настроены сегменты
+5. **Исключения падают с triple fault** — нет handler'а для C++ exceptions
+
+```cpp
+// Решение: явно вызываем конструкторы глобальных объектов
+typedef void (*constructor)();
+extern "C" constructor start_ctors;
+extern "C" constructor end_ctors;
+
+extern "C" void init_ctors() {
+    for(constructor* i = &start_ctors; i != &end_ctors; i++) {
+        (*i)();
+    }
+}
+```
+
+### Проблемы памяти для C++
+
+6. **`new`/`delete` не работают** — нет реализации
+7. **Планировщик памяти конфликтует с `std::allocator`**
+8. **Выравнивание памяти ломает SSE-операции**
+9. **Умные указатели в ядре — deadlock на первом же `std::shared_ptr`**
+
+```cpp
+// Базовая реализация new/delete для ядра
+void* operator new(size_t size) {
+    return kmalloc(size);
+}
+
+void operator delete(void* ptr) noexcept {
+    kfree(ptr);
+}
+```
+
+## Фаза 2: Система ввода-вывода на C++ (25+ проблем)
+
+### Драйверы с классами
+
+10. **Виртуальные методы в драйверах не работают** — неправильная VMT
+11. **Шаблонный драйвер DMA не компилируется** — сложности с инстанцированием
+12. **RAII для аппаратных ресурсов** — деструктор вызывается в неподходящий момент
+
+```cpp
+class KeyboardDriver {
+private:
+    InterruptManager& interrupts;
+    Port8 data_port;
+    
+public:
+    explicit KeyboardDriver(InterruptManager& im) 
+        : interrupts(im), data_port(0x60) {
+        interrupts.register_handler(1, *this);
+    }
+    
+    ~KeyboardDriver() {
+        interrupts.unregister_handler(1);
+    }
+    
+    virtual void handle_interrupt(); // Для разных типов клавиатур
+};
+```
+
+### Файловая система с STL-подобным интерфейсом
+
+13. **Итераторы для директорий ломают page fault**
+14. **`std::function` для callback'ов VFS — overhead**
+15. **Шаблонный кэш файловой системы — сложная отладка**
+
+```cpp
+template<typename T>
+class FileSystemCache {
+private:
+    std::unordered_map<inode_t, T> cache;
+    Mutex lock;
+    
+public:
+    T& get(inode_t inode) {
+        LockGuard guard(lock);
+        return cache[inode];
+    }
+};
+```
+
+## Фаза 3: Управление памятью и C++ (30+ проблем)
+
+### Page Allocator с современным C++
+
+16. **`std::unique_ptr` для физических страниц — двойное освобождение**
+17. **Memory pool с placement new — alignment issues**
+18. **Смарт-указатели в page tables — рекурсивные зависимости**
+
+```cpp
+class Page {
+public:
+    template<typename T>
+    T* map_as() {
+        return reinterpret_cast<T*>(physical_to_virtual(address));
+    }
+};
+
+class UniquePage {
+private:
+    std::unique_ptr<Page, PageDeleter> page;
+    
+public:
+    // Проблема: исключения при аллокации
+    static UniquePage create() {
+        auto ptr = PageAllocator::allocate();
+        if(!ptr) {
+            throw std::bad_alloc(); // Опасно в ядре!
+        }
+        return UniquePage(ptr);
+    }
+};
+```
+
+### Виртуальная память и C++ абстракции
+
+19. **Шаблонный MMU mapper — сложная отладка**
+20. **RAII для mapping'а памяти — unmapping в деструкторе слишком поздний**
+21. **`constexpr` для вычисления page table entries — не все можно вычислить на этапе компиляции**
+
+```cpp
+class MemoryMapping {
+private:
+    uintptr_t virtual_addr;
+    size_t size;
+    
+public:
+    MemoryMapping(uintptr_t va, size_t sz) 
+        : virtual_addr(va), size(sz) {
+        // Map memory
+    }
+    
+    ~MemoryMapping() {
+        // Unmap memory - но что если мы в interrupt context?
+    }
+};
+```
+
+## Фаза 4: Многозадачность и C++ (25+ проблем)
+
+### Потоки с `std::thread`-like интерфейсом
+
+22. **Исключения в потоках ядра — corruption стека**
+23. **Thread-local storage не работает** — неправильная настройка GS/FS
+24. **Deadlock в `std::mutex` реализации** — неправильная реализация futex
+25. **Stack unwinding при убийстве потока — деструкторы не вызываются**
+
+```cpp
+class Thread {
+private:
+    uintptr_t stack_ptr;
+    std::function<void()> entry_point;
+    
+public:
+    template<typename Function>
+    Thread(Function&& f) : entry_point(std::forward<Function>(f)) {
+        // Создание стека с guard page
+    }
+    
+    // Проблема: исключение в потоке
+    void run() {
+        try {
+            entry_point();
+        } catch(...) {
+            // Куда деть исключение? В ядре нет stderr
+        }
+    }
+};
+```
+
+### Синхронизация и современный C++
+
+26. **`std::atomic` не работает без proper memory barriers**
+27. **Lock-free структуры данных падают на SMP**
+28. **Condition variables не пробуждаются**
+
+```cpp
+// Lock-free очередь для межпоточного общения
+template<typename T>
+class LockFreeQueue {
+private:
+    std::atomic<size_t> head, tail;
+    T* buffer;
+    
+public:
+    bool push(T&& item) {
+        // Memory ordering issues на многопроцессорных системах
+    }
+};
+```
+
+## Фаза 5: Системные вызовы и C++ ABI (15+ проблем)
+
+### C++ интерфейс системных вызовов
+
+29. **name mangling ломает системные вызовы**
+30. **Передача сложных объектов через системные вызовы** — сериализация/десериализация
+31. **Исключения через границу ядро-пользователь**
+
+```cpp
+// Системный вызов с C++ интерфейсом
+namespace Syscall {
+    template<typename... Args>
+    auto invoke(int number, Args&&... args) {
+        // Проблема: передача ссылок, умных указателей и т.д.
+    }
+}
+
+// В пользовательском пространстве
+File open_file(const std::string& path) {
+    return Syscall::invoke(SYS_OPEN, path);
+}
+```
+
+## Особые проблемы C++ в ядре
+
+### Исключения и error handling
+
+32. **`-fno-exceptions` ломает STL**
+33. **Custom exception types — overhead**
+34. **Stack unwinding в interrupt handlers — невозможно**
+
+```cpp
+// Error handling без исключений
+template<typename T>
+class Expected {
+private:
+    union {
+        T value;
+        Error error;
+    };
+    bool has_value;
+    
+public:
+    // Much safer than exceptions in kernel
+};
+```
+
+### Шаблоны и метапрограммирование
+
+35. **Template bloat — размер бинарного файла растет exponentially**
+36. **CTFE (Compile-Time Function Execution) ограничено в кросс-компиляции**
+37. **Concept проверки не работают с низкоуровневыми типами**
+
+```cpp
+template<typename Driver>
+concept InterruptHandler = requires(Driver d) {
+    { d.handle_interrupt() } -> std::same_as<void>;
+    // Проблема: низкоуровневые драйверы не удовлетворяют concepts
+};
+```
+
+## Инфраструктура и инструменты
+
+### Сборка и компиляция
+
+38. **Cross-compiler не поддерживает C++20/23 полностью**
+39. **LTO (Link Time Optimization) ломает символы ядра**
+40. **Debug symbols с C++ names занимают гигабайты**
+
+```makefile
+# Makefile проблемы
+CXXFLAGS += -std=c++23 -fno-exceptions -fno-rtti
+# Проблема: некоторые библиотеки требуют RTTI
+```
+
+### Тестирование и отладка
+
+41. **Google Test/Mock не работают без libc**
+42. **`constexpr` evaluation в отладчике невозможна**
+43. **Backtrace с C++ names — парсинг сложных template names**
+
+## Реальные баги из PotemkOS
+
+```cpp
+// БАГ #1: Виртуальный вызов в конструкторе
+class Device {
+public:
+    Device() { initialize(); } // Проблема: initialize() виртуальный!
+    virtual void initialize() = 0;
+};
+
+// БАГ #2: Static initialization order fiasco
+class Console {
+public:
+    static Console& instance() {
+        static Console console; // Может быть создан слишком поздно
+        return console;
+    }
+};
+
+// БАГ #3: Exception safety в interrupt context
+void interrupt_handler() {
+    std::lock_guard lock(some_mutex); // Может бросить исключение
+}
+```
+
+## Выжимка советов для PotemkOS на C++
+
+1. **Используйте подмножество C++** — без исключений, с ограниченным RTTI
+2. **Пишите custom allocator'ы** для всех контейнеров
+3. **Избегайте сложных шаблонов** в критическом коде
+4. **Используйте RAII, но осторожно** — помните про interrupt context
+5. **Пишите свои аналоги STL** для ядерных нужд
+
+```cpp
+// Идеальный подход для ядра ОС
+namespace Kernel {
+    template<typename T>
+    using vector = BasicVector<T, KernelAllocator<T>>;
+    
+    template<typename T>
+    using unique_ptr = BasicUniquePtr<T, KernelDeleter>;
+}
+```

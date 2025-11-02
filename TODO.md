@@ -1,7 +1,8 @@
-# TODO: Fully Disable ESLint
+# Remove Prisma from Project
 
-- [x] Delete .eslintrc.js
-- [x] Delete .eslintignore
-- [x] Edit package.json: remove "lint" script
-- [x] Edit package.json: remove "eslint" and "eslint-config-next" from devDependencies
-- [x] Edit package.json: remove lint-staged rule for ESLint
+- [x] Modify lib/prisma.js to make all guestbook operations throw errors
+- [x] Remove prisma/schema.prisma file
+- [x] Remove Prisma dependencies from package.json
+- [x] Delete the prisma/ folder
+- [x] Run yarn install to update dependencies
+- [ ] Test views API returns fixed count, guestbook operations throw errors

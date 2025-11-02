@@ -25,8 +25,6 @@
     "@headlessui/react": "^1.5.0",
     "@lyket/react": "^1.4.8",
     "@mailchimp/mailchimp_marketing": "^3.0.58",
-    "@prisma/client": "^6.18.0",
-    "@prisma/engines": "^6.18.0",
     "@radix-ui/react-icons": "^1.1.1",
     "@tailwindcss/forms": "^0.4.0",
     "@tailwindcss/typography": "^0.5.0",
@@ -88,7 +86,6 @@
     "inquirer": "^8.1.1",
     "lint-staged": "^11.0.0",
     "next-remote-watch": "^1.0.0",
-    "prisma": "^6.18.0",
     "socket.io": "^4.4.0",
     "socket.io-client": "^4.4.0"
   }
