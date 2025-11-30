@@ -5,7 +5,7 @@ const siteMetadata = {
   description: 'My personal blog where I share my musings',
   snippets: 'Reuseable code snippets collected by kiww',
   language: 'en-us',
-  theme: 'dark', // system, dark or light
+  theme: 'system', // system, dark or light
   siteUrl: 'https://kiwi.xo.je',
   siteRepo: 'https://github.com/kiwinatra/newblog',
   siteLogo: '/static/images/logo.png',
@@ -38,7 +38,7 @@ const siteMetadata = {
       metadata: '0',
       // theme example: light, dark, dark_dimmed, dark_high_contrast
       // transparent_dark, preferred_color_scheme, custom
-      theme: 'light',
+      theme: 'dark',
       inputPosition: 'bottom',
       lang: 'en',
       darkTheme: 'dark',

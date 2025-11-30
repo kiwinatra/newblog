@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import SocialIcon from './social-icons'
 import FolderIcon from './icon'
 
@@ -18,8 +19,23 @@ const Card = ({ title, description, imgSrc, href, github, tech1, tech2, tech3 })
             </div>
           </div>
         </div>
+        
+        {/* Добавь изображение если есть imgSrc */}
+        {imgSrc && (
+          <div className="mb-3">
+            <Image
+              alt={title}
+              src={imgSrc}
+              className="object-cover object-center"
+              width={544}
+              height={306}
+              layout="responsive"
+              unoptimized // важно для экспорта
+            />
+          </div>
+        )}
+        
         <h2 className="mb-3 text-2xl font-bold leading-8 tracking-tight">{title}</h2>
-
         <p className="prose mb-3 max-w-none text-gray-500 dark:text-gray-400">{description}</p>
         <div className="flex flex-row justify-between">
           <div className="text-sm text-gray-400">

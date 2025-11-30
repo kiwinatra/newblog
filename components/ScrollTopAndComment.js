@@ -1,19 +1,25 @@
 import { useEffect, useState } from 'react'
 import { ClapButton } from '@lyket/react'
 import ScrollTop from '@/components/ScrollTop'
+import devLogger from '@/lib/devLogger'
+import { ClapButton } from '@lyket/react'
+import ScrollTop from '@/components/ScrollTop'
 
 const ScrollTopAndComment = () => {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
     const handleWindowScroll = () => {
-      if (window.scrollY > 50) setShow(true)
-      else setShow(false)
+      const shouldShow = window.scrollY > 50
+      devLogger('Scroll event', { scrollY: window.scrollY, shouldShow })
+      if (shouldShow !== show) {
+        setShow(shouldShow)
+      }
     }
 
     window.addEventListener('scroll', handleWindowScroll)
     return () => window.removeEventListener('scroll', handleWindowScroll)
-  }, [])
+  }, [show])
 
   return (
     <>

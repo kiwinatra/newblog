@@ -145,7 +145,7 @@ module.exports = {
         },
         dark: {
           css: {
-            color: theme('colors.gray.300'),
+            color: theme('colors.white'),
             a: {
               color: theme('colors.primary.500'),
               '&:hover': {
@@ -289,6 +289,14 @@ module.exports = {
             opacity: 0,
           },
         },
+        fall: {
+          '0%': {
+            transform: 'translateY(-100vh)',
+          },
+          '100%': {
+            transform: 'translateY(100vh)',
+          },
+        },
       },
       animation: {
         'fade-text': '10s ease-in-out 3s 1 normal forwards running fade-away',
@@ -301,6 +309,8 @@ module.exports = {
         'gradient-foreground-2': 'gradient-foreground-2 8s infinite',
         'gradient-background-3': 'gradient-background-3 8s infinite',
         'gradient-foreground-3': 'gradient-foreground-3 8s infinite',
+        fall: 'fall linear infinite',
+        'fall-sway': 'fall-sway linear infinite',
       },
     },
   },

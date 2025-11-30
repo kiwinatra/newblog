@@ -14,7 +14,7 @@ export const MDXComponents = {
   pre: Pre,
   BlogNewsletterForm: BlogNewsletterForm,
   // Простой wrapper без динамических импортов
-  wrapper: ({ children }) => <div className="prose max-w-none">{children}</div>
+  wrapper: ({ children }) => <div className="prose max-w-none dark:prose-dark">{children}</div>
 }
 
 export const MDXLayoutRenderer = ({ layout, mdxSource, ...rest }) => {

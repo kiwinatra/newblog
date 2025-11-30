@@ -25,10 +25,12 @@ import {
   EnterIcon,
 } from '@radix-ui/react-icons'
 import useSound from 'use-sound'
+import devLogger from '@/lib/devLogger'
 
 export default function DropMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const toggleIcon = () => {
+    devLogger('Toggle icon called', { isOpen })
     setIsOpen(!isOpen)
   }
 
@@ -65,10 +67,12 @@ export default function DropMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
         afterEnter={() => {
+          devLogger('Menu transition entered')
           toggleIcon()
           ThemeSound()
         }}
         afterLeave={() => {
+          devLogger('Menu transition left')
           toggleIcon()
           ThemeSound()
         }}
@@ -167,25 +171,20 @@ export default function DropMenu() {
             </Menu.Item>
             <Menu.Item>
               {({ active }) => (
-                <>
-                  <Link>
-                    <a
-                      className={classNames(
-                        active
-                          ? 'cursor-pointer bg-gray-200 text-gray-700 dark:bg-zinc-700 dark:text-gray-300'
-                          : 'bg-white text-zinc-700 hover:bg-gray-300 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700',
-                        'block cursor-pointer px-4 py-2 text-sm'
-                      )}
-                    >
-                      <div className="flex flex-row">
-                        <EnterIcon />
-                        <div className="ml-4">
-                          Sign In (Disabled)
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
-                </>
+                <Link href="/auth">
+                  <a
+                    className={classNames(
+                      active
+                        ? 'bg-gray-200 text-gray-700 dark:bg-zinc-700 dark:text-gray-300'
+                        : 'bg-white text-zinc-700 hover:bg-gray-300 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700',
+                      'block px-4 py-2 text-sm'
+                    )}
+                  >
+                    <div className="flex flex-row">
+                      <EnterIcon className="mr-4 mt-0.5" /> Sign In
+                    </div>
+                  </a>
+                </Link>
               )}
             </Menu.Item>
           </div>

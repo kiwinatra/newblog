@@ -9,6 +9,7 @@ import ThemeSwitch from './ThemeSwitch'
 import Typewriter from 'typewriter-effect'
 import { useRouter } from 'next/router'
 import DropMenu from './DropMenu.js'
+import Snowflakes from './Snowflakes'
 // import Logo from '@/data/logo.svg'
 // import MobileNav from './MobileNav'
 
