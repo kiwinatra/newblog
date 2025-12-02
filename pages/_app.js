@@ -15,7 +15,6 @@ import { ClientReload } from '@/components/ClientReload'
 import ProgressBar from 'react-scroll-progress-bar'
 import ScrollTop from '@/components/ScrollTop'
 import { Provider } from '@lyket/react'
-import devLogger from '@/lib/devLogger'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isSocket = process.env.SOCKET
@@ -23,20 +22,14 @@ const isSocket = process.env.SOCKET
 NProgress.configure({ showSpinner: false })
 
 Router.onRouteChangeStart = () => {
-  devLogger('Route change started')
-  // console.log('onRouteChangeStart triggered');
   NProgress.start()
 }
 
 Router.onRouteChangeComplete = () => {
-  devLogger('Route change completed')
-  // console.log('onRouteChangeComplete triggered');
   NProgress.done()
 }
 
 Router.onRouteChangeError = () => {
-  devLogger('Route change error')
-  // console.log('onRouteChangeError triggered');
   NProgress.done()
 }
 
@@ -65,7 +58,6 @@ const DevLoggerComponent = () => {
         if (data.dev) {
           window.devMode = true
           window.devSettings = data
-          devLogger('Dev mode enabled', data.dev_custom_message || '')
         }
       })
       .catch(() => setDevSettings({}))
@@ -73,8 +65,6 @@ const DevLoggerComponent = () => {
 
   useEffect(() => {
     if (!devSettings.dev) return
-
-    devLogger('Setting up event listeners')
 
     const listeners = []
 
@@ -121,7 +111,7 @@ const DevLoggerComponent = () => {
     if (devSettings.dev_enable_performance_monitoring) {
       const perfObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
-          devLogger('Performance entry', {
+          console.log('Performance entry', {
             name: entry.name,
             type: entry.entryType,
             duration: entry.duration,
@@ -175,10 +165,10 @@ const DevLoggerComponent = () => {
       })
     }
 
-    // Existing event listeners
+    // Event listeners
     if (devSettings.dev_enable_click_logging) {
       const handleClick = (event) => {
-        devLogger('Click event', {
+        console.log('Click event', {
           target: event.target.tagName,
           className: event.target.className,
           id: event.target.id,
@@ -191,7 +181,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_key_logging) {
       const handleKeyDown = (event) => {
-        devLogger('Key down event', {
+        console.log('Key down event', {
           key: event.key,
           code: event.code,
           target: event.target.tagName,
@@ -203,7 +193,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_scroll_logging) {
       const handleScroll = (event) => {
-        devLogger('Scroll event', {
+        console.log('Scroll event', {
           scrollY: window.scrollY,
           scrollX: window.scrollX,
         })
@@ -214,7 +204,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_mouse_logging) {
       const handleMouseMove = (event) => {
-        devLogger('Mouse move', {
+        console.log('Mouse move', {
           x: event.clientX,
           y: event.clientY,
         })
@@ -225,7 +215,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_focus_logging) {
       const handleFocus = (event) => {
-        devLogger('Focus event', {
+        console.log('Focus event', {
           target: event.target.tagName,
           id: event.target.id,
         })
@@ -236,7 +226,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_input_logging) {
       const handleInput = (event) => {
-        devLogger('Input event', {
+        console.log('Input event', {
           target: event.target.tagName,
           type: event.target.type,
           value: event.target.value?.slice(0, 20),
@@ -248,7 +238,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_form_logging) {
       const handleSubmit = (event) => {
-        devLogger('Form submit', {
+        console.log('Form submit', {
           target: event.target.tagName,
           action: event.target.action,
         })
@@ -259,7 +249,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_load_logging) {
       const handleLoad = () => {
-        devLogger('Page loaded')
+        console.log('Page loaded')
       }
       window.addEventListener('load', handleLoad)
       listeners.push(() => window.removeEventListener('load', handleLoad))
@@ -267,7 +257,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_unload_logging) {
       const handleUnload = () => {
-        devLogger('Page unloading')
+        console.log('Page unloading')
       }
       window.addEventListener('beforeunload', handleUnload)
       listeners.push(() => window.removeEventListener('beforeunload', handleUnload))
@@ -275,7 +265,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_resize_logging) {
       const handleResize = () => {
-        devLogger('Window resize', {
+        console.log('Window resize', {
           width: window.innerWidth,
           height: window.innerHeight,
         })
@@ -286,7 +276,7 @@ const DevLoggerComponent = () => {
 
     if (devSettings.dev_enable_visibility_logging) {
       const handleVisibilityChange = () => {
-        devLogger('Visibility change', {
+        console.log('Visibility change', {
           hidden: document.hidden,
         })
       }

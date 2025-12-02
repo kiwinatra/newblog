@@ -1,0 +1,242 @@
+---
+title: WebGPU Compute Shader для физических симуляций
+date: '2024-01-15'
+tags: [webgpu, physics, compute-shader, javascript]
+draft: false
+summary: Использование WebGPU для параллельных вычислений физики частиц
+images: []
+layout: PostSimple
+---
+
+```js showLineNumbers
+class GPUParticleSystem {
+  constructor(canvas, particleCount = 100000) {
+    this.canvas = canvas;
+    this.particleCount = particleCount;
+    this.device = null;
+    this.pipeline = null;
+    this.buffers = {};
+    
+    this.initWebGPU();
+  }
+
+  async initWebGPU() {
+    if (!navigator.gpu) {
+      throw new Error('WebGPU не поддерживается');
+    }
+
+    const adapter = await navigator.gpu.requestAdapter();
+    this.device = await adapter.requestDevice();
+
+    // Compute shader для обновления позиций частиц
+    const computeShader = this.device.createShaderModule({
+      code: `
+        struct Particle {
+          position: vec2<f32>,
+          velocity: vec2<f32>,
+          color: vec3<f32>,
+          life: f32
+        };
+
+        struct SimulationParams {
+          deltaTime: f32,
+          gravity: vec2<f32>,
+          mousePosition: vec2<f32>,
+          mouseForce: f32,
+          resolution: vec2<f32>
+        };
+
+        @group(0) @binding(0) var<storage, read_write> particles: array<Particle>;
+        @group(0) @binding(1) var<uniform> params: SimulationParams;
+
+        @compute @workgroup_size(64)
+        fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+          let index = id.x;
+          if (index >= arrayLength(&particles)) {
+            return;
+          }
+
+          var particle = particles[index];
+          
+          // Сила гравитации
+          particle.velocity += params.gravity * params.deltaTime;
+          
+          // Сила от мыши (отталкивание)
+          let mouseDir = particle.position - params.mousePosition;
+          let mouseDist = length(mouseDir);
+          if (mouseDist < 0.2) {
+            let force = normalize(mouseDir) * params.mouseForce / (mouseDist + 0.01);
+            particle.velocity += force * params.deltaTime;
+          }
+          
+          // Вязкость
+          particle.velocity *= 0.99;
+          
+          // Обновление позиции
+          particle.position += particle.velocity * params.deltaTime;
+          
+          // Коллизии с границами
+          if (abs(particle.position.x) > 1.0) {
+            particle.position.x = sign(particle.position.x) * 1.0;
+            particle.velocity.x *= -0.8;
+          }
+          if (abs(particle.position.y) > 1.0) {
+            particle.position.y = sign(particle.position.y) * 1.0;
+            particle.velocity.y *= -0.8;
+          }
+          
+          // Обновление жизни
+          particle.life -= params.deltaTime * 0.1;
+          if (particle.life <= 0.0) {
+            particle = resetParticle(particle, params.resolution);
+          }
+          
+          particles[index] = particle;
+        }
+
+        fn resetParticle(particle: Particle, resolution: vec2<f32>) -> Particle {
+          let angle = f32(index) * 0.01;
+          let radius = 0.5;
+          return Particle(
+            vec2(cos(angle) * radius, sin(angle) * radius),
+            vec2(0.0, 0.0),
+            vec3(
+              0.5 + 0.5 * sin(angle),
+              0.5 + 0.5 * sin(angle + 2.094),
+              0.5 + 0.5 * sin(angle + 4.188)
+            ),
+            1.0
+          );
+        }
+      `
+    });
+
+    // Создание compute pipeline
+    this.computePipeline = this.device.createComputePipeline({
+      layout: 'auto',
+      compute: {
+        module: computeShader,
+        entryPoint: 'main'
+      }
+    });
+
+    // Инициализация буферов частиц
+    this.initParticleBuffers();
+    
+    // Создание render pipeline для отрисовки
+    this.initRenderPipeline();
+  }
+
+  async initParticleBuffers() {
+    const particleSize = 8 * 4; // vec2 + vec2 + vec3 + float
+    const bufferSize = this.particleCount * particleSize;
+    
+    // Буфер для частиц (чтение/запись)
+    this.buffers.particles = this.device.createBuffer({
+      size: bufferSize,
+      usage: GPUBufferUsage.STORAGE | 
+             GPUBufferUsage.COPY_DST | 
+             GPUBufferUsage.COPY_SRC
+    });
+    
+    // Буфер для униформы
+    this.buffers.params = this.device.createBuffer({
+      size: 32, // Размер SimulationParams
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    
+    // Инициализация частиц
+    await this.resetParticles();
+  }
+
+  async resetParticles() {
+    const initialData = new Float32Array(this.particleCount * 8);
+    
+    for (let i = 0; i < this.particleCount; i++) {
+      const angle = i * 0.01;
+      const radius = 0.5;
+      const offset = i * 8;
+      
+      // Позиция
+      initialData[offset + 0] = Math.cos(angle) * radius;
+      initialData[offset + 1] = Math.sin(angle) * radius;
+      
+      // Скорость
+      initialData[offset + 2] = 0;
+      initialData[offset + 3] = 0;
+      
+      // Цвет
+      initialData[offset + 4] = 0.5 + 0.5 * Math.sin(angle);
+      initialData[offset + 5] = 0.5 + 0.5 * Math.sin(angle + 2.094);
+      initialData[offset + 6] = 0.5 + 0.5 * Math.sin(angle + 4.188);
+      
+      // Жизнь
+      initialData[offset + 7] = 1.0;
+    }
+    
+    this.device.queue.writeBuffer(
+      this.buffers.particles, 
+      0, 
+      initialData.buffer
+    );
+  }
+
+  async simulate(deltaTime, mousePosition) {
+    const commandEncoder = this.device.createCommandEncoder();
+    
+    // Compute pass
+    const computePass = commandEncoder.beginComputePass();
+    computePass.setPipeline(this.computePipeline);
+    
+    // Bind group для compute шейдера
+    const bindGroup = this.device.createBindGroup({
+      layout: this.computePipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: this.buffers.particles }
+        },
+        {
+          binding: 1,
+          resource: { buffer: this.buffers.params }
+        }
+      ]
+    });
+    
+    computePass.setBindGroup(0, bindGroup);
+    
+    // Запись параметров
+    const params = new Float32Array([
+      deltaTime,           // deltaTime
+      0.0, -9.8,           // gravity
+      mousePosition.x, mousePosition.y, // mousePosition
+      5.0,                 // mouseForce
+      this.canvas.width, this.canvas.height // resolution
+    ]);
+    
+    this.device.queue.writeBuffer(this.buffers.params, 0, params);
+    
+    // Диспатч compute шейдера
+    const workgroupCount = Math.ceil(this.particleCount / 64);
+    computePass.dispatchWorkgroups(workgroupCount);
+    computePass.end();
+    
+    // Render pass
+    const textureView = this.context.getCurrentTexture().createView();
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [{
+        view: textureView,
+        loadOp: 'clear',
+        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+        storeOp: 'store'
+      }]
+    });
+    
+    renderPass.setPipeline(this.renderPipeline);
+    renderPass.setVertexBuffer(0, this.buffers.particles);
+    renderPass.draw(this.particleCount, 1, 0, 0);
+    renderPass.end();
+    
+    this.device.queue.submit([commandEncoder.finish()]);
+  }
+}

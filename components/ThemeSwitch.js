@@ -13,7 +13,7 @@ const ThemeSwitch = () => {
 
   const [ThemeSound] = useSound('/static/sounds/switch-on.mp3')
 
-  const ThemeSwitch = () => {
+  const toggleTheme = () => {
     setTheme(theme === 'dark' || resolvedTheme === 'dark' ? 'light' : 'dark')
   }
   return (
@@ -29,9 +29,14 @@ const ThemeSwitch = () => {
         aria-label="Toggle Dark Mode"
         type="button"
         onClick={() => {
-          ThemeSwitch()
-          ThemeSound()
-        }}
+          toggleTheme()
+          try {
+            ThemeSound()
+          } catch (error) {
+            console.warn('Sound playback failed:', error)
+          }
+        }
+      }
       >
         {mounted && (theme === 'dark' || resolvedTheme === 'dark') ? (
           <HiSun className="h-4 w-4 hover:animate-spin" />
