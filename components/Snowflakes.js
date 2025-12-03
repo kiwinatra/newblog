@@ -31,11 +31,14 @@ const Snowflakes = () => {
       {snowflakes.map((flake) => (
         <div
           key={flake.id}
-          className="absolute text-white animate-fall-sway"
+          className="absolute text-white"
           style={{
             left: `${flake.left}%`,
             animationDelay: `${flake.animationDelay}s`,
             animationDuration: `${flake.duration}s`,
+            animationTimingFunction: 'linear',
+            animationIterationCount: 'infinite',
+            animationName: 'fall-sway',
             fontSize: `${flake.size}px`,
             opacity: flake.opacity,
             filter: `blur(${flake.blur}px)`,
@@ -49,4 +52,4 @@ const Snowflakes = () => {
   )
 }
 
-export default Snowflakes
+export default Snowflakes;

@@ -1,0 +1,200 @@
+/**
+ * CSS Styles for code highlighting.
+ * Feel free to customize token styles 
+ * by copying from a prismjs compatible theme:
+ * https://github.com/PrismJS/prism-themes
+ */
+
+/* Code title styles */
+.remark-code-title {
+  @apply rounded-t bg-christmas-green-900 px-5 py-3 font-mono text-sm font-bold text-christmas-white border-b border-christmas-red-500;
+}
+
+.remark-code-title + div > pre {
+  @apply mt-0 rounded-t-none;
+}
+
+/* Code block styles */
+.code-highlight {
+  @apply float-left min-w-full;
+}
+
+.code-line {
+  @apply -mx-4 block border-l-4 border-transparent pl-4 pr-4;
+}
+
+.code-line.inserted {
+  @apply bg-christmas-green-900 bg-opacity-30;
+}
+
+.code-line.deleted {
+  @apply bg-christmas-red-900 bg-opacity-30;
+}
+
+.highlight-line {
+  @apply -mx-4 border-l-4 border-christmas-red-500 bg-christmas-green-900 bg-opacity-30;
+}
+
+.line-number::before {
+  @apply mr-4 -ml-2 inline-block w-4 text-right text-christmas-green-400;
+  content: attr(line);
+}
+
+/* Token styles */
+/**
+ * MIT License
+ * Copyright (c) 2018 Sarah Drasner
+ * Sarah Drasner's[@sdras] Night Owl
+ * Ported by Sara vieria [@SaraVieira]
+ * Added by Souvik Mandal [@SimpleIndian]
+ */
+.token.comment,
+.token.prolog,
+.token.cdata {
+  color: #228B22;
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: #FFD700;
+}
+
+.namespace {
+  color: #DC143C;
+}
+
+.token.deleted {
+  color: rgba(220, 20, 60, 0.7);
+  font-style: italic;
+}
+
+.token.symbol,
+.token.property {
+  color: #228B22;
+}
+
+.token.tag,
+.token.operator,
+.token.keyword {
+  color: #DC143C;
+}
+
+.token.boolean {
+  color: #FF8C00;
+}
+
+.token.number {
+  color: #FF4500;
+}
+
+.token.constant,
+.token.function,
+.token.builtin,
+.token.char {
+  color: #32CD32;
+}
+
+.token.selector,
+.token.doctype {
+  color: #FFD700;
+  font-style: italic;
+}
+
+.token.attr-name,
+.token.inserted {
+  color: #228B22;
+  font-style: italic;
+}
+
+.token.string,
+.token.url,
+.token.entity,
+.language-css .token.string,
+.style .token.string {
+  color: #90EE90;
+}
+
+.token.class-name,
+.token.atrule,
+.token.attr-value {
+  color: #FFD700;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #98FB98;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.table {
+  display: inline;
+}
+
+/* Dark mode specific styles */
+.dark .token.comment,
+.dark .token.prolog,
+.dark .token.cdata {
+  color: #90EE90;
+}
+
+.dark .token.punctuation {
+  color: #FFD700;
+}
+
+.dark .namespace {
+  color: #FF6347;
+}
+
+.dark .token.symbol,
+.dark .token.property {
+  color: #32CD32;
+}
+
+.dark .token.tag,
+.dark .token.operator,
+.dark .token.keyword {
+  color: #FF6347;
+}
+
+.dark .token.boolean {
+  color: #FFA500;
+}
+
+.dark .token.number {
+  color: #FF7F50;
+}
+
+.dark .token.constant,
+.dark .token.function,
+.dark .token.builtin,
+.dark .token.char {
+  color: #00FA9A;
+}
+
+.dark .token.selector,
+.dark .token.doctype {
+  color: #FFD700;
+}
+
+.dark .token.string,
+.dark .token.url,
+.dark .token.entity,
+.dark .language-css .token.string,
+.dark .style .token.string {
+  color: #98FB98;
+}
+
+.dark .token.class-name,
+.dark .token.atrule,
+.dark .token.attr-value {
+  color: #FFD700;
+} 

@@ -5,7 +5,7 @@
   "author": {
     "name": "kiwi",
     "email": "dude2@atomicmail.io",
-    "url": "https://musing.vercel.app/"
+    "url": "https://kiwi.xo.je/"
   },
   "scripts": {
     "start": "cross-env SOCKET=true node ./scripts/next-remote-watch.js ./data",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pycoder2000/blog.git"
+    "url": "git+https://github.com/kiwinatra/newblog.git"
   },
   "dependencies": {
     "@fontsource/inter": "4.5.2",

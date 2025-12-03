@@ -1,4 +1,4 @@
-Sitemap: https://musing.vercel.app/sitemap.xml
+Sitemap: https://kiwi.xo.je/sitemap.xml
 
 User-agent: *
 Allow: /

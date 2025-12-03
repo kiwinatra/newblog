@@ -15,6 +15,7 @@ import { ClientReload } from '@/components/ClientReload'
 import ProgressBar from 'react-scroll-progress-bar'
 import ScrollTop from '@/components/ScrollTop'
 import { Provider } from '@lyket/react'
+import Snowflakes from '@/components/Snowflakes'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isSocket = process.env.SOCKET
@@ -36,9 +37,9 @@ Router.onRouteChangeError = () => {
 const defaultTheme = {
   colors: {
     primary: '#71717a',
-    secondary: '#ff00c3',
+    secondary: '#DC143C',
     text: '#fff',
-    highlight: '#ff00c3',
+    highlight: '#DC143C',
     icon: '#fff',
     background: 'transparent',
   },
@@ -296,8 +297,9 @@ export default function App({ Component, pageProps }) {
   return (
     <Provider apiKey="pt_7c8b6840f5ba39cd3b2b471cd8efc2" theme={defaultTheme}>
       <ThemeProvider attribute="class" defaultTheme={siteMetadata.theme}>
-        <ProgressBar bgcolor="#DE1D8D" />
+        <ProgressBar bgcolor="#DC143C" />
         <ScrollTop />
+        <Snowflakes />
         <Head>
           <meta content="width=device-width, initial-scale=1" name="viewport" />
         </Head>

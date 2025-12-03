@@ -2,20 +2,26 @@
 import Link from 'next/link'
 import React from 'react'
 
-const CustomLink = React.forwardRef(({ href, ...rest }, ref) => {
+const CustomLink = React.forwardRef(({ href, children, ...rest }, ref) => {
   const isInternalLink = href && href.startsWith('/')
   const isAnchorLink = href && href.startsWith('#')
 
   if (isInternalLink) {
     return (
-      <Link href={href} passHref>
-        <a ref={ref} {...rest} />
+      <Link href={href} passHref legacyBehavior>
+        <a ref={ref} {...rest}>
+          {children}
+        </a>
       </Link>
     )
   }
 
   if (isAnchorLink) {
-    return <a ref={ref} href={href} {...rest} />
+    return (
+      <a ref={ref} href={href} {...rest}>
+        {children}
+      </a>
+    )
   }
 
   return (
@@ -26,7 +32,9 @@ const CustomLink = React.forwardRef(({ href, ...rest }, ref) => {
       rel="noopener noreferrer"
       href={href}
       {...rest}
-    />
+    >
+      {children}
+    </a>
   )
 })
 

@@ -18,7 +18,7 @@ export default function Footer() {
           {`•`}
           <div className="mx-1">
             <Link href="https://eagl.xo.je" className="link-underline">
-              Have a good {currentDayName()}!
+              Merry Christmas! 🎄
             </Link>
           </div>
           {`•`}

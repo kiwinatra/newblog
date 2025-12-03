@@ -1,8 +1,8 @@
 const siteMetadata = {
-  title: 'Blog | kiwinatra',
+  title: 'Merry Christmas Blog | kiwinatra',
   author: 'kiwinatra',
-  headerTitle: 'Mere Musings',
-  description: 'My personal blog where I share my musings',
+  headerTitle: 'Merry Christmas Musings',
+  description: 'My personal blog where I share my musings, now with a festive Christmas twist!',
   snippets: 'Reuseable code snippets collected by kiww',
   language: 'en-us',
   theme: 'system', // system, dark or light
